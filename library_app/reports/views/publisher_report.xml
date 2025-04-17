@@ -1,0 +1,38 @@
+<odoo>
+    <template id="publisher_report">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <div class="container">
+                        <div class="header">
+                            <h1>Books By Publisher</h1>
+                            <p>
+                                Company: <t t-out="res_company.name"/>
+                            </p>
+                        </div>
+                        <div class="content">
+                            <t t-foreach="docs" t-as="group">
+                                <t t-if="group.book_ids">
+                                    <h2><t t-out="group.name"/></h2>
+                                
+                                    <!-- Aquí puedes mostrar libros, dirección, etc. -->
+                                    <ul>
+                                        <t t-foreach="group.book_ids" t-as="book">
+                                            <li>
+                                                <t t-out="book.name"/>
+                                            </li>
+                                        </t>
+                                    </ul>
+                                </t>
+                                <t t-else="">
+                                    <!-- Opcional: mensaje cuando no hay nombre en el grupo -->
+                                    <!-- <p>Grupo sin nombre</p> -->
+                                </t>   
+                            </t>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

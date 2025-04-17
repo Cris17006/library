@@ -20,23 +20,38 @@ Long description of module's purpose
     'application': True,
 
     # any module necessary for this one to work correctly
-    'depends': ['base'],
+    'depends': ['base', 'web'],
+
 
     # always loaded
-    'data': [
-        'security/library_security.xml',
-        'security/ir.model.access.csv',
-        'views/book_view.xml',
-        'views/templates.xml',
-        'views/library_menu.xml',
-        'reports/library_book_report.xml',
-        'reports/book_catalog.xml',
-        'reports/library_publisher_report.xml',
-        'reports/publisher_report.xml',
-        'views/book_list_template.xml',
-        'views/views.xml',
-        
+  'data': [
+    # Seguridad y accesos
+    'security/library_security.xml',
+    'security/ir.model.access.csv',
+
+    # Vistas base
+    'views/book_view.xml',
+    'views/views.xml',
+    'views/library_menu.xml',
+
+    # Templates frontend
+    'views/book_list_template.xml',
+    'views/templates.xml',
+
+    # Reports y sus assets
+    'reports/views/library_book_report.xml',
+    'reports/views/library_publisher_report.xml',
+    'reports/views/publisher_report.xml',
+    'reports/views/book_catalog.xml',
     ],
+
+
+    'assets': {
+        'web.report_assets_common': [
+        'library_app/static/src/css/reports.css',
+
+        ],
+    },
     # only loaded in demonstration mode
     'demo': [
         'data/res.partner.csv',
