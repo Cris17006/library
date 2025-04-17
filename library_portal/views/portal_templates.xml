@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<odoo>
+
+    
+    <template id="portal_my_checkouts" inherit_id="portal.portal_my_home">
+        <xpath expr = "//div[hasclass('o_portal_docs')]" position = "inside">
+            <div class="o_portal_category row g-2 mt-3" id="portal_common_category">
+                    <t t-call="portal.portal_docs_entry" t-if="False"/>
+                    <t t-call="portal.portal_docs_entry">
+                        <t t-set="icon" t-value="'/library_portal/static/src/img/book.svg'"/>
+                        <t t-set="title">Book Checkouts</t>
+                        <t t-set="text">View of book borrowed</t>
+                        <t t-set="url" t-value="'/my/book-checkouts'"/>
+                        <t t-set="config_card" t-value="True"/>
+                    </t>
+            </div>
+        </xpath>
+    </template>
+    <!-- <template id="portal_my_books" inherit_id="portal.portal_my_home">
+        <xpath expr = "//div[hasclass('o_portal_docs')]" position = "inside">
+            <div class="o_portal_category row g-2 mt-3" id="portal_common_category">
+                    <t t-call="portal.portal_docs_entry" t-if="False"/>
+                    <t t-call="portal.portal_docs_entry">
+                        <t t-set="icon" t-value="'/library_portal/static/src/img/book.svg'"/>
+                        <t t-set="title">Books Catalog</t>
+                        <t t-set="text">View of books catalog</t>
+                        <t t-set="url" t-value="'/my/book-catalog'"/>
+                        <t t-set="config_card" t-value="True"/>
+                    </t>
+            </div>
+        </xpath>
+    </template> -->
+
+    <!-- Muestra una tabla en la que cada fila es un botón donde se muestran todos los préstamos realizados -->
+    <template id = "my_book_checkouts" name = "My Book Checkouts">
+        <xpath expr="." position="inside">
+        <link rel="stylesheet" href="/library_portal/static/src/css/library.css"/>
+        </xpath>
+        
+            <t t-call = "portal.portal_layout">
+                <div id="book_checkouts">
+                    <t t-if = "checkouts">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <div class = "row">
+                                            <div class = "col">
+                                                <p>Title</p>
+                                            </div>
+                                            <div class = "col">
+                                                <p>Request Date</p>
+                                            </div>
+                                            <div class = "col">
+                                                <p>Closed Date</p>
+                                            </div>
+                                            <div class = "col">
+                                                <p>Stage</p>
+                                            </div>
+                                        </div>
+                                        
+                                    </th>
+                                    <!-- <th>Title</th>
+                                    <th>Request Date</th>
+                                    <th>Stage</th> -->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="checkouts" t-as="doc">
+                                    <tr class = "checkout_styles">
+                                        <td>
+                                            <a t-attf-href="/my/book-checkout/{{ doc.id }}">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <span t-field="doc.name"/>
+                                                    </div>
+                                                    <div class="col">
+                                                        <span t-field="doc.request_date"/>
+                                                    </div>
+                                                    <div class = "col">
+                                                        <span t-field = "doc.closed_date"/>
+                                                    </div>
+                                                    <div class="col">
+                                                        <span t-field="doc.stage_id.name" class="badge badge-pill badge-info"/>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>      
+                    </t>
+                    <t t-else = "">
+                        <div class = "alert alert-wartning" role = "alert">
+                            <p>There are no book checkouts.</p>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        
+    </template>
+
+    <!-- Muestra una tabla con la información del préstamo seleccionado-->
+    <template id="book_checkout" name="Checkout Form">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs">
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="/my/book-checkouts">Checkouts</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <t t-out="doc.name"/>
+                    </li>
+                </ul>
+            </t>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col">
+                            <h5 class="text-truncate">
+                                <span t-field="doc.name"/>
+                            </h5>
+                        </div>
+                        <div class="col text-right" style = "text-align: right;">
+                            <span class="badge badge-pill badge-info" title="Current Stage">
+                                <span t-field="doc.stage_id.name"/>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    
+                    <div class="row mb-2">
+                        <div class="col">
+                            <h3 style = "text-align:center;">Checkout info</h3>
+                        </div>
+                    </div>
+                    <!--Checkout Details-->
+                    <div class="row">
+                        <div class="col pl-sm-0">
+                            <t t-if="doc.id">
+                                <!-- <img t-attf-src = "data:image/*;base64,{{doc.image}}"
+                                    class = "img-fluid"
+                                    alt = "Imagen de {{doc.library_book.name}}" style = "width: 5%; border-radius:15%; margin: 20px; margin-left: 0; border: 2px solid black;"/> -->
+                                <p><strong>Checkout Name:</strong> <span t-field="doc.name"/></p>
+                                <p><strong>Books Number:</strong> <span t-field="doc.num_books"/></p>
+                                <p><strong>Phone:</strong> <span t-field="doc.member_id.phone"/></p>
+                                <p><strong>Member Card:</strong> <span t-field = "doc.member_id.card_number"/></p>
+                            </t>
+                            <t t-else="">
+                                <p>No member information available.</p>
+                            </t>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col" style = "margin-top: 25px; padding-top: 25px; border-top: 2px solid lightgray;">
+                            <h3 style = "text-align:center">Member Details</h3>
+                        </div>
+                    </div>
+                    <!-- Member Details-->
+                    <div class="row">
+                        <div class="col pl-sm-0">
+                            
+                            <t t-if="doc.member_id">
+                                <img t-attf-src = "data:image/*;base64,{{doc.member_id.avatar}}"
+                                    class = "img-fluid"
+                                    alt = "Imagen de {{doc.member_id.name}}" style = "width: 5%; border-radius:15%; margin: 20px; margin-left: 0; border: 2px solid black;"/>
+                                <p><strong>Name:</strong> <span t-field="doc.member_id.name"/></p>
+                                <p><strong>Email:</strong> <span t-field="doc.member_id.email"/></p>
+                                <p><strong>Phone:</strong> <span t-field="doc.member_id.phone"/></p>
+                                <p><strong>Member Card:</strong> <span t-field = "doc.member_id.card_number"/></p>
+                            </t>
+                            <t t-else="">
+                                <p>No member information available.</p>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <a t-attf-href="/my/modify-member/{{doc.member_id.id}}" class="btn btn-primary">Modify Member</a>
+                    <a t-attf-href="/my/modify-checkout/{{doc.id}}" class="btn btn-primary">Modify Checkout</a>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Esta plantilla crea un formulario para modificar los datos de los miembros registrados en el sistema-->
+    <template id="modify_member" name="Modify Member">
+        <t t-call="portal.portal_layout">
+            <div class="wrap">
+                <div class="oe_structure">
+                    <div class="container">
+                        <form role="form" action="/modify/member-info" method="POST">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <input type="hidden" name="member_id" t-att-value="member_id.id"/>
+
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input type="text" name="Name" t-att-value="member_id.name" class="form-control"/>
+
+                                <label for="email">Email</label>
+                                <input type="email" name="email" t-att-value="member_id.email" class="form-control"/>
+
+                                <label for="card_number">Card Number</label>
+                                <input type="text" name="card_number" t-att-value="member_id.card_number" class="form-control"/>
+
+                                <label for="phone">Phone</label>
+                                <input type="text" name="phone" t-att-value="member_id.phone" class="form-control"/>
+                            </div>
+
+                            <div class="clearfix oe_login_buttons" style = "margin-top: 15px;">
+                                <button type="submit" class="btn btn-primary pull-left">Modify Member</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Esta plantilla crea un formulario para modificar los datos de los préstamos realizados-->
+    <template id="modify_checkout" name="Modify Checkout">
+        <t t-call="portal.portal_layout">
+            <div class="wrap">
+                <div class="oe_structure">
+                    <div class="container">
+                        <form role="form" action="/modify/checkout-info" method="POST">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <input type="hidden" name="checkout_id" t-att-value="checkout_id.id"/>
+
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input type="text" name="name" t-att-value="checkout_id.name" class="form-control"/>
+
+                                <label for="priority">Priority</label>
+                                <select name = "priority" id = "priority" t-att-value = "checkout_id.priority" class = "form-control">
+                                    <option value = "0" t-att-selected="str(checkout_id.priority) == '0'">High</option>
+                                    <option value = "1" t-att-selected="str(checkout_id.priority) == '1'">Very High</option>
+                                    <option value = "2" t-att-selected="str(checkout_id.priority) == '2'">Critical</option>
+                                </select>
+
+                                <t t-if = "checkout_id.stage_id.state == 'new' or checkout_id.stage_id.state == 'borrowed'">
+                                <label for = "request_date">Checkout Date</label>
+                                <input type = "date" id = "request_date" name = "request_date" t-att-value = "checkout_id.request_date" class = "form-control"/>
+                                </t>
+
+                                <t t-if = "checkout_id.stage_id.state == 'done' or checkout_id.stage_id.state == 'cancel'">
+                                    <label for = "closed_date">Closed Date</label>
+                                    <input type = "date" id = "closed_date" name = "closed_date" readonly = "True" t-att-value = "checkout_id.closed_date" class = "form-control"/>
+                                </t>
+
+                                <t t-if = "checkout_id.stage_id.state == 'new' or checkout_id.stage_id.state == 'borrowed'">
+                                    <label for = "state_checkout">State</label>
+                                    <select name = "state_checkout" id = "state_checkout" class = "form-control">
+                                        <option value = "new" t-att-selected = "checkout_id.stage_id.state == 'new'">Requested</option>
+                                        <option value = "open" t-att-selected = "checkout_id.stage_id.state == 'open'">Open</option>
+                                        <option value = "done" t-att-selected = "checkout_id.stage_id.state == 'done'">Completed</option>
+                                        <option value = "cancel" t-att-selected = "checkout_id.stage_id.state == 'cancel'">Canceled</option>
+                                    </select>
+                                </t>
+
+                            </div>
+
+                            <div class="clearfix oe_login_buttons" style = "margin-top: 15px;">
+                                <button type="submit" class="btn btn-primary pull-left">Modify Checkout</button>
+                                <a t-attf-href="/my/checkout_books" class="btn btn-primary">Books Borrowed</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+    <!-- Muestra los libros de cada préstamo -->
+    <template id="modify_checkout_books" name="Checkout Books">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs">
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="/my/book-checkouts">Checkouts</a>
+                    </li>
+                </ul>
+            </t>
+            <div class="wrap">
+                <div class="oe_structure">
+                    <div class="container">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>Borrowed Books</h2>
+                            </div>
+                            <div class="card-body">
+                                <t t-foreach="checkouts" t-as="book">
+                                    <div class="form-group" style="border: 1px solid lightgray; border-radius:25px; padding: 20px; margin: 20px">
+                                        <h3 style = "text-align:center;">Checkout <t t-out = "book.name"/></h3>
+                                        
+                                        <t t-foreach="book.line_ids" t-as="line">
+                                            
+                                            <div class="info" style = "padding-left: 6.5%;">
+                                                <p><span><img t-attf-src = "data:image/*;base64,{{line.book_id.image}}"
+                                                        class = "img-fluid oe_inline"
+                                                        alt = "Imagen de {{doc.member_id.image}}" style = "width: 5%; border-radius:15%; margin: 20px; margin-left: 0; border: 2px solid black;"/></span><strong><t t-out="book.name"/></strong></p>
+                                                <p><strong>Published: </strong><t t-out="book.checkout_date"  /></p>
+                                                <p><strong>Borrowed By: </strong><t t-out = "book.member_id.name"/></p>
+                                                <t t-foreach = "book.line_ids.book_id.publisher_id" t-as = "publisher">
+                                                    <p><strong>Publisher Name: </strong><t t-out="publisher.name"/></p>
+                                                </t>
+                                            </div>
+                                        </t>
+
+                                    </div>
+                                </t>
+                            </div>
+                            <div class="card-footer">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+
+
+
+    <template id = "portal_layout" name = "Portal bradcrumb: book checkout" inherit_id = "portal.portal_breadcrumbs">
+        <xpath expr = "//ol[hasclass('o_portal_submenu')]" position = "inside">
+            <li t-if = "page_name == 'book-checkouts' or doc" class = "col-lg-2" t-attf-class = "breadcrumb-item #{'active ' if not doc else ''}">
+                <a t-if = "doc" t-attf-href = "/my/book-checkouts?{{keep_query()}}">
+                    Checkouts
+                </a>
+                <t t-else = "">Checkouts</t>
+            </li>
+        </xpath>
+    </template>
+</odoo>

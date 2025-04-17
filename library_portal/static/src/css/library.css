@@ -1,0 +1,40 @@
+.h1-book-catalog{
+    font-size : 62px;
+}
+
+    /* Simular las filas como botones */
+    #book_checkouts .checkout_styles {
+        background-color: #f0f0f0;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px #0000001a, 0 1px 3px #00000014;
+        transition: all 0.3s ease;
+        margin-bottom: 10px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Hover simulando botón*/
+    #book_checkouts .checkout_styles:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 7px 14px #0000001f, 0 3px 6px #00000014;
+        background-color: #e8e8e8;
+    }
+
+    /* Efecto de click */
+    #book_checkouts .checkout_styles:active {
+        transform: translateY(1px);
+        box-shadow: 0 2px 4px #0000001a;
+    }
+
+    /* Relleno para más anchura de los botones en cada fila */
+    #book_checkouts .checkout_styles td {
+        padding: 12px 16px;
+        border: none;
+    }
+
+    #book_checkouts table {
+        border-collapse: separate;
+        border-spacing: 0 10px;
+        width: 100%;
+    }

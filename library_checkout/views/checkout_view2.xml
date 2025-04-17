@@ -1,0 +1,94 @@
+<odoo>
+    <record id="view_form_checkout" model="ir.ui.view">
+        <field name="model">library.checkout</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="state" invisible="True"/>
+                    <button name="button_done"
+                            type="object"
+                            string="Return Books"
+                            invisible="state not in ('open','cancel')"
+                            class="oe_highlight"/>
+                    <field name="stage_id"
+                           widget="statusbar"
+                           options="{'clickable': True, 'fold_field': 'fold'}"/>
+                    <field name="state"
+                           widget="statusbar"
+                           options="{'clickable': True}"
+                           statusbar_visible="open,done"/>
+                </header>
+
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button type="action"
+                                name="%(action_library_checkout)d"
+                                class="oe_stat_button"
+                                icon="fa-book"
+                                domain="[('member_id', '=', member_id)]"
+                                context="{'default_member_id': member_id}">
+                            <field name="count_checkouts" string="Checkouts" widget="statinfo"/>
+                        </button>
+                    </div>
+
+                    <field name="member_image" widget="image" class="oe_avatar"/>
+                    
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1><field name="name"/></h1>
+                        <h3>
+                            <span class="oe_read_only">By</span>
+                            <label for="member_id" class="oe_edit_only"/>
+                            <field name="member_id" class="oe_inline"/>
+                        </h3>
+                    </div>
+                    
+                    <group name="group_top">
+                        <notebook>
+                            <page name="page_lines" string="Borrowed Books">
+                                <field name="line_ids"/>
+                            </page>
+                        </notebook>
+                        <group name="group_col1" style="margin-top: 15px">
+                            <field name="request_date"/>
+                            <label for="num_books" class="oe_read_only"/>
+                            <field name="num_books" class="oe_inline"/>
+                        </group>
+                        <group name="group_col2" style="margin-top: 15px">
+                            <field name="closed_date"
+                                   invisible="state not in ('done', 'cancel')"/>
+                            <field name="user_id"/>
+                        </group>
+                    </group>
+                </sheet>
+
+                <!-- Chatter (Historial de mensajes y actividades) -->
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_filter_checkout" model="ir.ui.view">
+        <field name="model">library.checkout</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="member_id"/>
+                <field name="user_id"/>
+                <filter name="filter_not_done"
+                        string="To Return"
+                        domain="[('state', '=', 'open')]"/>
+                <filter name="filter_my_checkouts"
+                        string="My Checkouts"
+                        domain="[('user_id', '=', 'uid')]"/>
+                <filter name="group_user"
+                        string="By Member"
+                        context="{'group_by': 'member_id'}"/>
+                <searchpanel>
+                    <field name="member_id" enable_counters="2"/>
+                    <field name="stage_id" select="multi"/>
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+</odoo>

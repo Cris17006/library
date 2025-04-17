@@ -1,0 +1,51 @@
+<odoo>
+    <record id = "view_tree_checkout" model="ir.ui.view">
+        <field name="name">Checkout Tree</field>
+        <field name="model">library.checkout</field>
+        <field name = "arch" type = "xml">
+            <list>
+                <field name="request_date" />
+                <field name="member_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id = "view_form_checkout" model = "ir.ui.view">
+        <field name = "name">Checkout Form</field>
+        <field name = "model">library.checkout</field>
+        <field name = "arch" type = "xml">
+            <form>
+                <div id = "container">
+                    <div class = "oe_books">
+                        <sheet>
+                            <group>
+                                <field name="member_id"/>
+                                <field name="request_date"/>
+                                <field name="user_id"/>
+                            </group>
+                            <group>
+                                <notebook>
+                                    <page name="lines">
+                                        <field name="line_ids">
+                                            <list>
+                                                <field name="book_id"/>
+                                                <field name="note"/>
+                                            </list>
+                                        </field>
+                                    </page>
+                                </notebook>
+                            </group>
+                        </sheet>
+                    </div>
+                    <div class = "oe_chatter">
+                        <sheet>
+                            <field name = "message_follower_ids" widget = "mail_followers" />
+                            <field name = "activity_ids" widget = "mail_activity"/>
+                            <field name = "message_ids" widget = "mail_thread"/>
+                        </sheet>
+                    </div>
+                </div>
+            </form>
+        </field>
+    </record>
+</odoo>

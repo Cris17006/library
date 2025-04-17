@@ -1,0 +1,49 @@
+<odoo>
+    <template id = "book_checkout" name = "Checkout Form">
+        <t t-call = "portal.portal_layout">
+            <t t-call = "portal.portal_record_layout">
+                <t t-set = "card_header">
+                    <div class = "row">
+                        <div class="col">
+                            <h5 class="text-truncate" t-field = "doc.name"/>
+                        </div>
+                        <div class="col text-right">
+                            <span t-field = "doc.stage_id.name" class = "badge badge-pill badge-info" title = "Current Stage"/>
+                        </div>
+                    </div>
+                </t>
+                <t t-set = "card_body">
+                    <!-- Member Details-->
+                    <div class = "row">
+                        <strong>Member</strong>
+                    </div>
+                    <div class="row">
+                        <div t-if = "doc.member_id.image_1024" class = "col flex-grow-0">
+                            <img class = "rounded-circle mt-1 o_portal_contact_img" t-att-src = "image_data_uri(doc.member_id.image_1024)" alt = "Contact"/>
+                        </div>
+                        <div class="col pl-sm-0">
+                            <address t-field = "doc.member_id"
+                                t-options = '{
+                                    "widget": "contact",
+                                    "fields": ["name", "email", "phone"]
+                                }'/>
+                        </div>
+                    </div>
+                    <!-- Checkout books -->
+                    <div class="row">
+                        <strong>Borrowed books</strong>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <ul>
+                                <li t-foreach = "doc.line_ids" t-as = "line">
+                                    <span t-field = "line.book_id.display_name"/>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
