@@ -4,13 +4,11 @@
             <t t-call="web.external_layout">
                 <div class="page">
                     <div class="container">
-                        <div class="header">
+                        <div class="content">
                             <h1>Books By Publisher</h1>
                             <p>
                                 Company: <t t-out="res_company.name"/>
                             </p>
-                        </div>
-                        <div class="content">
                             <t t-foreach="docs" t-as="group">
                                 <t t-if="group.book_ids">
                                     <h2><t t-out="group.name"/></h2>
