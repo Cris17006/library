@@ -19,6 +19,18 @@
                                             <li>
                                                 <t t-out="book.name"/>
                                             </li>
+                                            <li>
+                                                ISBN: <t t-out = "book.isbn"/>
+                                            </li>
+
+                                            <t t-if = "book.category_id.name">
+                                                <li>
+                                                     <t t-out = "book.category_id.name"/>
+                                                </li>
+                                            </t>
+                                            <t t-else = "">
+                                                <li>Sin categoría asignada</li>
+                                            </t>
                                         </t>
                                     </ul>
                                 </t>
