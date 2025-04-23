@@ -1,37 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-   
-    
-    <template id = "book_catalog" name = "Book List">
-        <t t-call = "web.frontend_layout">
-            <t t-set = "title">Book Catalog</t>
-            <div class = "oe_structure">
-                <div class = "container">
-
-                    <h1 class="h1-book-catalog">Book Catalog</h1>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th scope = "col">Title</th>
-                                <th scope = "col">Published</th>
-                                <th scope = "col">Publisher</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t t-foreach = "books" t-as = "book">
-                                <tr scope = "row">
-                                    <td><span t-field = "book.name"/></td>
-                                    <td><span t-field = "book.date_published"/></td>
-                                    <td><span t-field = "book.publisher_id"/></td>
-                                </tr>
-                            </t>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </t>
-    </template>
-          
-      
       <!-- Esta plantilla muestra un catálogo de libros en vista de tarjetas -->
     <template id = "book_catalog_card" name = "Book List">
         <xpath expr="." position="inside">
@@ -73,7 +41,6 @@
                                     <t t-foreach="book.author_ids" t-as="authors">
                                         <a t-att-href="'https://www.google.com/search?q=' + authors.name" target="_blank"><p><t t-out="authors.name"/></p></a>
                                     </t>
-                                    
                                     <a t-attf-href = "/book/{{book.id}}" class = "btn btn-primary">View Book</a>
                                 </div>
                             </div>

@@ -124,7 +124,6 @@ class Book(models.Model):
 
             # Variable con la url de conexión a a la API externa
             url_details = f"https://openlibrary.org/api/books?bibkeys=ISBN:{new_isbn}&jscmd=details&format=json"
-            print('Buscando libro...')
 
             url_data = f"https://openlibrary.org/api/books?bibkeys=ISBN:{new_isbn}&jscmd=data&format=json"
 
@@ -233,7 +232,7 @@ class Book(models.Model):
                 else:
                     print("No se encontró una fecha válida")
                 
-                # Hace petición a json works para obtener la categoría de los libros
+               # Hace petición a json works para obtener la categoría de los libros
                 # works = details.get('works', [])
                 # if works:
                 #     work_key = works[0].get('key')

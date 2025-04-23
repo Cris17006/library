@@ -4,38 +4,42 @@
             <t t-call="web.external_layout">
                 <div class="page">
                     <div class="container">
+                        <xpath expr="." position="inside">
+                            <link rel="stylesheet" href="static/src/css/publisher_report.css"/>
+                        </xpath>
                         <div class="content">
-                            <h1>Books By Publisher</h1>
-                            <p>
-                                Company: <t t-out="res_company.name"/>
-                            </p>
+                            <div class="title">
+                                <h1>Books By Publisher</h1>
+                                <p>
+                                    Company: 
+                                    <a href="https://medac.es/">
+                                        <t t-out="res_company.name"/>
+                                    </a>
+                                </p>
+                            </div>
                             <t t-foreach="docs" t-as="group">
                                 <t t-if="group.book_ids">
-                                    <h2><t t-out="group.name"/></h2>
-                                
-                                    <!-- Aquí puedes mostrar libros, dirección, etc. -->
-                                    <ul>
-                                        <t t-foreach="group.book_ids" t-as="book">
-                                            <li>
-                                                <t t-out="book.name"/>
-                                            </li>
-                                            <li>
-                                                ISBN: <t t-out = "book.isbn"/>
-                                            </li>
-
-                                            <t t-if = "book.category_id.name">
-                                                <li>
-                                                     <t t-out = "book.category_id.name"/>
-                                                </li>
+                                    <div class="section">
+                                        <div>
+                                            <h2><t t-out="group.name"/></h2>
+                                        </div>
+                                        <div class="data">
+                                            <t t-foreach="group.book_ids" t-as="book">
+                                                <div class="book-entry">
+                                                    <strong><t t-out="book.name"/></strong><br/>
+                                                    ISBN: <t t-out="book.isbn"/><br/>
+                                                    <t t-if="book.category_id.name">
+                                                        Categoría: <t t-out="book.category_id.name"/>
+                                                    </t>
+                                                    <t t-else="">
+                                                        Categoría: Sin categoría asignada
+                                                    </t>
+                                                </div>
                                             </t>
-                                            <t t-else = "">
-                                                <li>Sin categoría asignada</li>
-                                            </t>
-                                        </t>
-                                    </ul>
+                                        </div>
+                                    </div>
                                 </t>
                                 <t t-else="">
-                                    <!-- Opcional: mensaje cuando no hay nombre en el grupo -->
                                     <!-- <p>Grupo sin nombre</p> -->
                                 </t>   
                             </t>

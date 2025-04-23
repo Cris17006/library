@@ -1,7 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <template id = "book_checkout" name = "Checkout Form">
         <t t-call = "portal.portal_layout">
-            <t t-call = "portal.portal_record_layout">
+            <t t-call = "portal.frontend_layout">
                 <t t-set = "card_header">
                     <div class = "row">
                         <div class="col">

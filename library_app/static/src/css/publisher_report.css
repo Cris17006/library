@@ -1,0 +1,33 @@
+.content{
+    border:2px solid rgb(156, 153, 153);
+    border-radius: 15px;
+}
+
+.title h1{
+    background-color: lightgray;
+    padding: 5px;
+    border-radius: 5px;
+    
+}
+
+.section .data {
+    column-count: 2;
+    column-gap: 40px;
+}
+
+.book-entry {
+    break-inside: avoid;
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.title p{
+    padding: 3px;
+}
+
+.content div{
+    margin: 20px;
+}

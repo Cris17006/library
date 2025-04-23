@@ -48,7 +48,8 @@ Long description of module's purpose
 
     'assets': {
         'web.report_assets_common': [
-        'library_app/static/src/css/reports.css',
+        'library_app/static/src/css/publisher_report.css',
+        'library_app/static/src/css/book_catalog.css',
 
         ],
     },

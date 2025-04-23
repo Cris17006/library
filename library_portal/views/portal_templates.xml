@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <odoo>
-
     
     <template id="portal_my_checkouts" inherit_id="portal.portal_my_home">
         <xpath expr = "//div[hasclass('o_portal_docs')]" position = "inside">
@@ -17,20 +16,6 @@
             </div>
         </xpath>
     </template>
-    <!-- <template id="portal_my_books" inherit_id="portal.portal_my_home">
-        <xpath expr = "//div[hasclass('o_portal_docs')]" position = "inside">
-            <div class="o_portal_category row g-2 mt-3" id="portal_common_category">
-                    <t t-call="portal.portal_docs_entry" t-if="False"/>
-                    <t t-call="portal.portal_docs_entry">
-                        <t t-set="icon" t-value="'/library_portal/static/src/img/book.svg'"/>
-                        <t t-set="title">Books Catalog</t>
-                        <t t-set="text">View of books catalog</t>
-                        <t t-set="url" t-value="'/my/book-catalog'"/>
-                        <t t-set="config_card" t-value="True"/>
-                    </t>
-            </div>
-        </xpath>
-    </template> -->
 
     <!-- Muestra una tabla en la que cada fila es un botón donde se muestran todos los préstamos realizados -->
     <template id = "my_book_checkouts" name = "My Book Checkouts">
