@@ -4,9 +4,149 @@ import unicodedata
 import base64
 import requests
 import time
+import re
 from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
+_key = "z5s6ww3mepk2z3l4fx7pi4bfcemp1u"
+
+class ProductTemplate(models.Model):
+    _inherit = "product.template"
+    
+    
+    # Se sobreescribe el método create para validar antes de crear
+    @api.model
+    def create(self, vals):
+        # Validar productos duplicados en la base de datos
+        if 'name' in vals and vals['name']:
+            producto_existente = self.env['product.template'].search([('name', '=', vals['name'])], limit=1)
+            if producto_existente:
+                raise UserError(f"El producto ya existe en la base de datos. No se creará un duplicado.")
+        return super(ProductTemplate, self).create(vals)
+
+    @api.onchange('barcode')
+    def _generate_product(self):
+        if not self.name:
+
+            for record in self:
+                if not record.barcode:
+                    continue
+
+                barcode = record.barcode
+                url_product = f'https://api.barcodelookup.com/v3/products?barcode={barcode}&formatted=y&key={_key}'
+                _logger.info(f"Consultando API con URL: {url_product}")
+
+                
+                try:
+                    response = requests.get(url_product, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+                    _logger.info(f"Status code recibido: {response.status_code}")
+
+                    
+                    if response.status_code == 404:
+                        raise UserError(f"El producto con código de barras '{record.barcode}' no existe en la base de datos externa.")
+                    if response.status_code != 200:
+                        raise UserError(f"Error al buscar el producto. Código de respuesta: {response.status_code}")
+
+                    data = response.json()
+                    if not data or not data.get('products'):
+                        raise UserError(f"No se encontraron datos para el producto con código de barras '{record.barcode}'")
+
+                    
+                    product_data = data.get('products', [{}])[0]
+
+                    # Asignar nombre y descripción
+                    record.name = product_data.get('title', '')
+                    record.description_sale = product_data.get('description', '')
+                    record.description = product_data.get('description', '')
+
+                    # Asignar precios
+                    try:
+                        price = float(product_data.get('price', 0.0))
+                        record.list_price = price * 1.4
+                        record.standard_price = price
+                    except (ValueError, TypeError):
+                        _logger.warning(f"No se pudo convertir el precio: {product_data.get('price')}")
+
+                    # Asignar imagen
+                    images = product_data.get('images', [])
+                    if images and isinstance(images, list):
+                        image_url = images[0]
+                        imagen_bytes = obtener_imagen(image_url)
+                        if imagen_bytes:
+                            record.image_1920 = base64.b64encode(imagen_bytes)
+                            _logger.info("Imagen cargada correctamente.")
+                        else:
+                            _logger.warning("No se pudo obtener la imagen.")
+                    else:
+                        _logger.warning("El producto no contiene imágenes.")
+
+                    # Asignar categorías
+                    category_path = product_data.get('category', '')
+                    category_names = [cat.strip() for cat in category_path.split('>') if cat.strip()]
+                    parent_category = None
+
+                    for name in category_names:
+                        category = self.env['product.category'].search([
+                            ('name', '=', name),
+                            ('parent_id', '=', parent_category.id if parent_category else False)
+                        ], limit=1)
+
+                        if not category:
+                            category = self.env['product.category'].create({
+                                'name': name,
+                                'parent_id': parent_category.id if parent_category else False
+                            })
+
+                        parent_category = category
+
+                    # Asignar la categoría final al producto
+                    if parent_category:
+                        record.categ_id = parent_category
+
+                    # Asignar código de referencia
+                    if not record.default_code:
+                        count = 0
+                        first_char_categ = record.categ_id.name[0] if record.categ_id else 'X'
+                        first_char_name = record.name[0] if record.name else 'Y'
+                        code = first_char_categ + first_char_name + "-" + str(count)
+
+                        exists = self.env["product.template"].search([('default_code', '=', code)])
+                        if exists:
+                            obtain_code = exists.default_code
+                            count = int(re.sub(r'\D', '', obtain_code))
+                            count += 1
+                            record.default_code = f"{first_char_categ}{first_char_name}-{count}"
+                        else:
+                            record.default_code = code
+                    else:
+                        _logger.info(f"El producto ya tiene código de referencia: {record.default_code}")
+                    
+                   # Asignar precio de coste (solo de tiendas en EUR)
+                    precio_minimo = 0.0
+                    stores = product_data.get('stores', [])
+
+                    # Filtramos precios válidos y que estén en euros
+                    precios_eur = [
+                        float(store.get('price')) for store in stores
+                        if store.get('price') and (store.get('currency') == 'EUR')
+                    ]
+
+                    if precios_eur:
+                        precio_minimo = min(precios_eur)
+                        record.standard_price = precio_minimo
+
+                        # Asignar precio de venta con margen del 60%
+                        record.list_price = round(precio_minimo * 1.6, 2)
+
+                        
+
+                except requests.exceptions.RequestException as e:
+                    _logger.error(f"Error de conexión: {str(e)}")
+                    raise UserError(f"Error de conexión al buscar el producto: {str(e)}")
+                except Exception as e:
+                    _logger.error(f"Error inesperado: {str(e)}")
+                    raise UserError(f"Error inesperado al procesar el producto: {str(e)}")
+                    
 
 def quitar_acentos(texto):
     # Elimina acentos del texto para normalizar URLs o búsquedas.
@@ -34,101 +174,3 @@ def obtener_imagen(url, max_reintentos=5):
             time.sleep(espera)
             espera *= 2
     return None
-
-class ProductTemplate(models.Model):
-    _inherit = "product.template"
-    
-    # Sobrescribimos el método create para validar antes de crear
-    @api.model
-    def create(self, vals):
-        # Validar productos duplicados en la base de datos
-        if 'name' in vals:
-            producto_existente = self.env['product.template'].search([('name', '=', vals['name'])], limit=1)
-            if producto_existente:
-                raise UserError(f"El producto '{vals['name']}' ya existe en la base de datos. No se creará un duplicado.")
-        return super(ProductTemplate, self).create(vals)
-    
-    def generate_product(self):
-        # Genera información del producto a través de una API externa, en este caso una fake shop api 
-        for record in self:
-                    
-            # Generamos el slug para la API
-            slug = quitar_acentos(record.name.strip().lower().replace(' ', '-'))
-            url_product = f'https://api.escuelajs.co/api/v1/products/slug/{slug}'
-            
-            try:
-                # Realizamos la consulta a la API externa
-                response = requests.get(url_product, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
-                
-                # Si no se encuentra el producto en la API se lanza un error
-                if response.status_code == 404:
-                    raise UserError(f"El producto '{record.name}' no existe en la base de datos externa. Slug: {slug}")
-                
-                # Si hay otro error HTTP que no sea 200 salta un error
-                if response.status_code != 200:
-                    raise UserError(f"Error al buscar el producto. Código de respuesta: {response.status_code}")
-                
-                # Se obtiene el json
-                data = response.json()
-                
-                # Verificar si la respuesta está vacía o no contiene datos
-                if not data:
-                    raise UserError(f"No se encontraron datos para el producto '{record.name}'")
-                
-                # Generar la descripción del producto
-                record.description_sale = data.get('description', '')
-                
-                # Actualizar precio si existe (Con margen de beneficio)
-                if 'price' in data:
-                    record.list_price = float(data.get('price', 0.0)) * 1.4
-                    record.standard_price = float(data.get('price', 0.0))
-
-                if 'description' in data:
-                    record.description = data.get('description', '')
-                
-                # Procesar imagen si existe
-                images = data.get('images', [])
-                if images and isinstance(images, list):
-                    image_url = images[0]  # Tomamos la primera imagen
-                    imagen_bytes = obtener_imagen(image_url)
-                    if imagen_bytes:
-                        record.image_1920 = base64.b64encode(imagen_bytes)
-                        _logger.info("Imagen del producto cargada correctamente.")
-                    else:
-                        _logger.warning("No se pudo obtener la imagen del producto.")
-                else:
-                    _logger.warning("El producto no contiene imágenes.")
-
-                if 'category' in data:
-                    details = data.get('category', {})
-                    categ_name = details.get('name', '')
-                    
-                    # Buscar o crear la categoría padre
-                    parent_category = self.env['product.category'].search([('name', '=', 'All')], limit=1)
-                    if not parent_category:
-                        parent_category = self.env['product.category'].create({'name': 'All'})
-
-                    # Buscar o crear la subcategoría
-                    category = self.env['product.category'].search([
-                        ('name', '=', categ_name),
-                        ('parent_id', '=', parent_category.id)
-                    ], limit=1)
-
-                    if not category:
-                        category = self.env['product.category'].create({
-                            'name': categ_name,
-                            'parent_id': parent_category.id
-                        })
-
-                    # Asignar la categoría al registro
-                    record.categ_id = category
-
-
-                    
-            except requests.exceptions.RequestException as e:
-                # Error de conexión
-                raise UserError(f"Error de conexión al consultar la API: {e}")
-            except Exception as e:
-                # Cualquier otro error
-                _logger.error(f"Error al consultar la API para el producto '{slug}': {e}")
-                raise UserError(f"Error al procesar el producto '{record.name}': {str(e)}")
